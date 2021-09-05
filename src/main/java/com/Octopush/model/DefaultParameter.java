@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DefaultParameter {
-	private List<SmsCampaignAlert> sms_campaign_alert_parameters;
-	private List<CampaignParameter> campaign_parameters;
-	private List<Callback> callbacks;
+	private SmsCampaignAlert sms_campaign_alert_parameters;
+	private CampaignParameter campaign_parameters;
+	private Callback callbacks;
 }

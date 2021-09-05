@@ -53,6 +53,7 @@ public class OctopushManager {
 	private String apiSubAccountEdit;
 	private String apiSubAccountInformation;
 	private String apiSubAccountCreditTransfer;
+	private String apiSubAccountCreditTransferToken;
 	
 	// VoiceSMS
 	private String apiVoiceSmsSend;
@@ -97,17 +98,15 @@ public class OctopushManager {
 	public Object getStatusListSMS(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(smsTicket,requestHeaders);
-			response = processRequest(apiSmsOnListStatusUrl.replaceAll("<ticket_number>", smsTicket), HttpMethod.GET, request);
+			request = new HttpEntity<String>(requestHeaders);
+			apiSmsOnListStatusUrl =  apiSmsOnListStatusUrl.concat("?ticket_number=").concat(smsTicket);
+			apiSmsOnListStatusUrl = java.net.URLEncoder.encode(apiSmsOnListStatusUrl, "UTF-8");
+			response = processRequest(apiSmsOnListStatusUrl, HttpMethod.GET, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode().equals(HttpStatus.OK)) {
+				logger.info("getStatusListSMS - Success Response: " + response.getBody());
 			}
-
+			
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -115,18 +114,14 @@ public class OctopushManager {
 		return response.getBody();
 	}
 
-	public Object confirmListSMS(String smsTicket) {
+	public Object confirmListSMS(String smsTicket) { 
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiSmsOnListConfirmUrl, HttpMethod.POST, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode().equals(HttpStatus.OK)) {
+				logger.info("confirmListSMS -Success Response: " + response.getBody());
 			}
 
 		} catch (Exception e) {
@@ -147,7 +142,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiSmsOnListCancelUrl, HttpMethod.DELETE, request);
 			if(response.getStatusCode() ==  HttpStatus.NO_CONTENT) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("cancelListSMS - Success Response: " + response.getStatusCode());
 			}else {
 				logger.info("Error: " + response.getStatusCode());
 			}
@@ -171,12 +166,8 @@ public class OctopushManager {
 			request = new HttpEntity<String>(smsList, requestHeaders);
 			response = processRequest(apiSmsOnListCreateUrl, HttpMethod.POST, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode().equals(HttpStatus.OK)) {
+				logger.info("createListSMS - Success Response: " + response.getBody());
 			}
 
 		} catch (Exception e) {
@@ -225,7 +216,7 @@ public class OctopushManager {
 			response = processRequest(apiAddContact, HttpMethod.POST, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("addContact - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -249,7 +240,7 @@ public class OctopushManager {
 			response = processRequest(apiCreateContactList, HttpMethod.POST, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("createContactList - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -260,20 +251,21 @@ public class OctopushManager {
 		return response.getStatusCode();
 	}
 	
+	
 	/**
 	 * 
 	 * @param contactList
 	 * @return
 	 */
 	
-	public Object deleteContact(String contactList) {
+	public Object removeContacts(String contactList) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(contactList, requestHeaders);
 			response = processRequest(apiDeleteContact, HttpMethod.DELETE, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.NO_CONTENT) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("removeContacts - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -296,7 +288,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(contactList, requestHeaders);
 			response = processRequest(apiEmptyContactList, HttpMethod.POST, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("emptyContactList - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -319,7 +311,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(contactList, requestHeaders);
 			response = processRequest(apiRemoveContactList, HttpMethod.DELETE, request);
 			if(response.getStatusCode() ==  HttpStatus.NO_CONTENT) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("removeContactList - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -341,7 +333,7 @@ public class OctopushManager {
 			response = processRequest(apiHRL, HttpMethod.POST, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("hlrLookUP - Success Response: " + response.getStatusCode());
 			}else if(response.getStatusCode() ==  HttpStatus.BAD_REQUEST) {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -357,14 +349,28 @@ public class OctopushManager {
 	 * @param data
 	 * @return
 	 */
-	public Object checkBalance(String data) {   // need to replace
+	public Object checkBalance(String... data) {   
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(data,requestHeaders);
+			
+			if(data.length == 1) {
+				apiCheckBalance = apiCheckBalance.concat("?with_details=").concat(data[0]);
+			}else if(data.length == 2) {
+				apiCheckBalance = apiCheckBalance.concat("?country_code=").concat(data[0])
+						.concat("&product_name=").concat(data[1]);
+			}else if (data.length == 3) {
+				apiCheckBalance = apiCheckBalance.concat("?country_code=").concat(data[0])
+				.concat("&product_name=").concat(data[1])
+				.concat("&with_details=").concat(data[2]);
+			}
+			
+			apiCheckBalance = java.net.URLEncoder.encode(apiCheckBalance, "UTF-8");
+			
+			request = new HttpEntity<String>(requestHeaders);
 			response = processRequest(apiCheckBalance, HttpMethod.GET, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("checkBalance - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -386,7 +392,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(data,requestHeaders);
 			response = processRequest(apiCheckCredit, HttpMethod.GET, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("checkCredit - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -409,7 +415,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(data,requestHeaders);
 			response = processRequest(apiSubAccountCreate, HttpMethod.POST, request);
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("subAccountCreate - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -431,15 +437,15 @@ public class OctopushManager {
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		try {
 			requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(1000);
-			requestFactory.setReadTimeout(1000);
+			requestFactory.setConnectTimeout(5000);
+			requestFactory.setReadTimeout(5000);
 			restTemplate.setRequestFactory(requestFactory);
 			
 			request = new HttpEntity<String>(data,requestHeaders);
 			response = processRequest(apiSubAccountEdit.replaceAll("<accountID>",accountID), HttpMethod.PATCH, request);
 			
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("subAccountModify - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -464,7 +470,7 @@ public class OctopushManager {
 			request = new HttpEntity<String>(requestHeaders);
 			response = processRequest(apiSubAccountInformation.replaceFirst("<accountID>", subAccountID), HttpMethod.GET, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("subAccountInformation - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -479,9 +485,13 @@ public class OctopushManager {
 	public Object subAccountTransferCredit(String data) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(requestHeaders);
+			request = new HttpEntity<String>(data, requestHeaders);
 			response = processRequest(apiSubAccountCreditTransfer, HttpMethod.POST, request);
-			logger.info("Success: " + response.getStatusCode());
+			if(response.getStatusCode() ==  HttpStatus.OK) {
+				logger.info("subAccountTransferCredit - Success Response: " + response.getStatusCode());
+			}else {
+				logger.error("Error: " + response.getStatusCode());
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage());
 			e.printStackTrace();
@@ -492,10 +502,10 @@ public class OctopushManager {
 	public Object subAccountTransferCreditToken(String data) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(requestHeaders);
-			response = processRequest(apiSubAccountCreditTransfer, HttpMethod.POST, request);
+			request = new HttpEntity<String>(data,requestHeaders);
+			response = processRequest(apiSubAccountCreditTransferToken, HttpMethod.POST, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("subAccountTransferCreditToken - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -518,12 +528,10 @@ public class OctopushManager {
 			request = new HttpEntity<String>(SMS, requestHeaders);
 			response = processRequest(apiVoiceSmsSend, HttpMethod.POST, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode() ==  HttpStatus.CREATED) {
+				logger.info("sendVoiceSMS - Success Response: " + response.getStatusCode());
+			}else {
+				logger.error("Error: " + response.getStatusCode());
 			}
 
 		} catch (Exception e) {
@@ -545,12 +553,10 @@ public class OctopushManager {
 			request = new HttpEntity<String>(SMS, requestHeaders);
 			response = processRequest(apiVoiceSmsSendList, HttpMethod.POST, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode() ==  HttpStatus.CREATED) {
+				logger.info("sendVoiceSmsList - Success Response: " + response.getStatusCode());
+			}else {
+				logger.error("Error: " + response.getStatusCode());
 			}
 
 		} catch (Exception e) {
@@ -566,18 +572,18 @@ public class OctopushManager {
 	 * @return
 	 */
 
-	public Object getVoiceSmsStatus(String smsTicket) {
+	public Object getVoiceSmsToAListStatus(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(smsTicket,requestHeaders);
-			response = processRequest(apiVoiceSmsStatus.replaceAll("<ticket_number>", smsTicket), HttpMethod.GET, request);
+			request = new HttpEntity<String>(requestHeaders);
+			apiVoiceSmsStatus = apiVoiceSmsStatus.concat("?ticket_number=").concat(smsTicket);
+			apiVoiceSmsStatus = java.net.URLEncoder.encode(apiVoiceSmsStatus, "UTF-8");
+			response = processRequest(apiVoiceSmsStatus, HttpMethod.GET, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
-				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
-				logger.error("BadRequest-Response: " + response.getBody());
-				return response.getBody();
+			if(response.getStatusCode() ==  HttpStatus.OK) {
+				logger.info("getVoiceSmsStatus - Success Response: " + response.getStatusCode());
+			}else {
+				logger.error("Error: " + response.getStatusCode());
 			}
 
 		} catch (Exception e) {
@@ -587,16 +593,16 @@ public class OctopushManager {
 		return response.getBody();
 	}
 
-	public Object getVoiceSmsConfirmation(String smsTicket) {
+	public Object confirmVoiceSmsToAList(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiVoiceSmsConfirm, HttpMethod.POST, request);
 
-			if (HttpStatus.CREATED != null) {
-				logger.info("Created-Response: " + response.getBody());
+			if (response.getStatusCode() == HttpStatus.OK) {
+				logger.info("Success-Response: " + response.getBody());
 				return response.getBody();
-			} else if (HttpStatus.BAD_REQUEST != null) {
+			} else if (response.getStatusCode() == HttpStatus.BAD_REQUEST) {
 				logger.error("BadRequest-Response: " + response.getBody());
 				return response.getBody();
 			}
@@ -614,13 +620,13 @@ public class OctopushManager {
 	 * @param smsTicket
 	 * @return
 	 */
-	public Object cancelVoiceListSms(String smsTicket) {
+	public Object cancelVoiceSmsToAList(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiVoiceSmsCancel, HttpMethod.DELETE, request);
-			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+			if(response.getStatusCode() ==  HttpStatus.NO_CONTENT) {
+				logger.info("cancelVoiceListSms - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -637,19 +643,19 @@ public class OctopushManager {
 	 * @param data
 	 * @return
 	 */
-	public Object modifyParamter(String data) {
+	public Object modifyParameter(String data) {
 		ResponseEntity<Object> response = null;
 		HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
 		try {
 			requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setConnectTimeout(1000);
-			requestFactory.setReadTimeout(1000);
+			requestFactory.setConnectTimeout(20000);
+			requestFactory.setReadTimeout(20000);
 			restTemplate.setRequestFactory(requestFactory);
 			
 			request = new HttpEntity<String>(data, requestHeaders);
 			response = processRequest(apiModifyParamter, HttpMethod.PATCH, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("modifyParamter - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -666,13 +672,13 @@ public class OctopushManager {
 	 * @param
 	 * @return
 	 */
-	public Object retrieveParamter() {
+	public Object retrieveParameter() {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(requestHeaders);
 			response = processRequest(apiRetrieveParamter, HttpMethod.GET, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
-				logger.info("Success: " + response.getStatusCode());
+				logger.info("retrieveParamter - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -741,6 +747,8 @@ public class OctopushManager {
 		apiSubAccountEdit = prop.getProperty("apiSubAccountEdit");
 		apiSubAccountInformation = prop.getProperty("apiSubAccountInformation");
 		apiSubAccountCreditTransfer = prop.getProperty("apiSubAccountCreditTransfer");
+		apiSubAccountCreditTransferToken = prop.getProperty("apiSubAccountCreditTransferToken");
+		
 		// VoiceSMS
 		apiVoiceSmsSend = prop.getProperty("apiVoiceSmsSend");
 		apiVoiceSmsSendList = prop.getProperty("apiVoiceSmsSendList");

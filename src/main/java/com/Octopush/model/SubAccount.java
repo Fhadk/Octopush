@@ -23,5 +23,5 @@ public class SubAccount {
 	
 	// Optional
 	private String password;
-	private List<Callback> callbacks;
+	private Callback callbacks;
 }

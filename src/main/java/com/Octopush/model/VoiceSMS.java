@@ -18,6 +18,7 @@ public class VoiceSMS {
 	private String sender;
 	private String voice_gender;
 	private String voice_language;
+	private String list_name;
 	
 	// Optional
 	

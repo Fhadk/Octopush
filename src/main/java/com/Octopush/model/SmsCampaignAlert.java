@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SmsCampaignAlert {
 	private String alert_type;
-	private String alert_bound;
+	private int alert_bound;
 	private String alert_email_to;
 	private String alert_phone_number_to;
 }

@@ -10,7 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreditConsultation {
+	//Optional
 	private List<String>country_codes;
+	private String country_code;
 	private boolean with_details;
 	private String product_name; 
 }

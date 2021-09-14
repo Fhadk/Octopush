@@ -4,21 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
 import com.Octopush.model.Callback;
 import com.Octopush.model.CampaignParameter;
 import com.Octopush.model.Contact;
 import com.Octopush.model.ContactList;
-import com.Octopush.model.CreateListSMS;
+import com.Octopush.model.CreateListSms;
 import com.Octopush.model.CreditConsultation;
 import com.Octopush.model.DefaultParameter;
 import com.Octopush.model.Recipient;
-import com.Octopush.model.SMS;
-import com.Octopush.model.SMSList;
+import com.Octopush.model.Sms;
+import com.Octopush.model.SmsList;
 import com.Octopush.model.SmsCampaignAlert;
 import com.Octopush.model.SubAccount;
-import com.Octopush.model.VoiceSMS;
+import com.Octopush.model.VoiceSms;
 import com.Octopush.service.OctopushManager;
 
+@SpringBootApplication
 public class OctopushApplication {
 	public static OctopushManager octopushManager = new OctopushManager();
 
@@ -27,11 +30,11 @@ public class OctopushApplication {
 		Scanner scanner = new Scanner(System.in);
 
 		System.out.println("Please Select from below API:\n");
-		System.out.println("1: SMS Send / Scheduling");
-		System.out.println("2: Send SMS List");
+		System.out.println("1: Sms Send / Scheduling");
+		System.out.println("2: Send Sms List");
 		System.out.println("3: Get Status");
 		System.out.println("4: Get Confirmation");
-		System.out.println("5: Cancel SMS List");
+		System.out.println("5: Cancel Sms List");
 		System.out.println("6: Add Contact");
 		System.out.println("7: Create Contact List");
 		System.out.println("8: Delete Contacts");
@@ -47,11 +50,11 @@ public class OctopushApplication {
 		System.out.println("18: Transfer Credit Token");
 		System.out.println("19: Modify Configuration");
 		System.out.println("20: Retrieve Configuration");
-		System.out.println("21: Send Voice SMS ");
-		System.out.println("22: Send Voice SMS List ");
-		System.out.println("23: Status Voice SMS");
-		System.out.println("24: Confirm Voice SMS ");
-		System.out.println("25: Cancel  Voice SMS\n");
+		System.out.println("21: Send Voice Sms ");
+		System.out.println("22: Send Voice Sms List ");
+		System.out.println("23: Status Voice Sms");
+		System.out.println("24: Confirm Voice Sms ");
+		System.out.println("25: Cancel  Voice Sms\n");
 
 		System.out.print("\n Enter your choice: ");
 
@@ -62,16 +65,16 @@ public class OctopushApplication {
 			sendSms();
 			break;
 		case 2:
-			smsToAList();
+			sendSmsToAList();
 			break;
 		case 3:
-			getStatus();
+			getSmsToAListStatus();
 			break;
 		case 4:
-			getConfirmation();
+			confirmSmsToAList();
 			break;
 		case 5:
-			cancelListSms();
+			cancelSmsToAList();
 			break;
 		case 6:
 			addContact();
@@ -167,22 +170,22 @@ public class OctopushApplication {
 
 		// Setting values
 
-		SMS SMS = new SMS();
+		Sms sms = new Sms();
 
-		SMS.setRecipients(recipients);
-		SMS.setText(text);
-		SMS.setSender(sender);
-		SMS.setType(type);
-		SMS.setPurpose(purpose);
-		SMS.setSend_at(send_at.toString());
-		SMS.setAuto_optimize_text(auto_optimize_text);
-		SMS.setSimulation_mode(simulation_mode);
-		SMS.setRequest_id(requestID);
+		sms.setRecipients(recipients);
+		sms.setText(text);
+		sms.setSender(sender);
+		sms.setType(type);
+		sms.setPurpose(purpose);
+		sms.setSend_at(send_at.toString());
+		sms.setAuto_optimize_text(auto_optimize_text);
+		sms.setSimulation_mode(simulation_mode);
+		sms.setRequest_id(requestID);
 
-		System.out.println(octopushManager.sendSMSCampaign(octopushManager.returnJson(SMS)));
+		System.out.println(octopushManager.sendSmsCampaign(octopushManager.returnJson(sms)));
 	}
 
-	public static void smsToAList() {
+	public static void sendSmsToAList() {
 
 		String type = "sms_premium";
 		String text = "dummy";
@@ -193,44 +196,44 @@ public class OctopushApplication {
 		boolean simulation_mode = false;
 		boolean auto_optimize_text = true;
 
-		String listName = "yuniList";
+		String listName = "Friends";
 
-		CreateListSMS listSMS = new CreateListSMS();
-		listSMS.setList_name(listName);
-		listSMS.setText(text);
-		listSMS.setSender(sender);
-		listSMS.setType(type);
-		listSMS.setPurpose(purpose);
-		listSMS.setSend_at(send_at.toString());
-		listSMS.setAuto_optimize_text(auto_optimize_text);
-		listSMS.setSimulation_mode(simulation_mode);
-		listSMS.setRequest_id(requestID);
+		CreateListSms listSms = new CreateListSms();
+		listSms.setList_name(listName);
+		listSms.setText(text);
+		listSms.setSender(sender);
+		listSms.setType(type);
+		listSms.setPurpose(purpose);
+		listSms.setSend_at(send_at.toString());
+		listSms.setAuto_optimize_text(auto_optimize_text);
+		listSms.setSimulation_mode(simulation_mode);
+		listSms.setRequest_id(requestID);
 
-		System.out.println(octopushManager.createListSMS(octopushManager.returnJson(listSMS)));
+		System.out.println(octopushManager.createSmsToAList(octopushManager.returnJson(listSms)));
 	}
 
-	public static void getStatus() {
-		String ticket_number = "sms_611fc09bb79ac685890484";
-		System.out.println(octopushManager.getStatusListSMS(ticket_number));
+	public static void getSmsToAListStatus() {
+		String ticket_number = "sms_613b0e3eafb29762369399";
+		System.out.println(octopushManager.getSmsToAListStatus(ticket_number));
 
 	}
 
-	public static void getConfirmation() {
+	public static void confirmSmsToAList() {
 		String ticket_number = "sms_611fba6bc84d2836383624";
 
-		SMSList getListSMS = new SMSList();
-		getListSMS.setTicket_number(ticket_number);
+		SmsList getListSms = new SmsList();
+		getListSms.setTicket_number(ticket_number);
 
-		System.out.println(octopushManager.confirmListSMS(octopushManager.returnJson(getListSMS)));
+		System.out.println(octopushManager.confirmSmsToAList(octopushManager.returnJson(getListSms)));
 	}
 
-	public static void cancelListSms() {
+	public static void cancelSmsToAList() {
 		String ticket_number = "sms_611fc09bb79ac685890484";
 
-		SMSList getListSMS = new SMSList();
-		getListSMS.setTicket_number(ticket_number);
+		SmsList getListSms = new SmsList();
+		getListSms.setTicket_number(ticket_number);
 
-		System.out.println(octopushManager.cancelListSMS(octopushManager.returnJson(getListSMS)));
+		System.out.println(octopushManager.cancelSmsToAList(octopushManager.returnJson(getListSms)));
 	}
 
 	public static void addContact() {
@@ -331,11 +334,13 @@ public class OctopushApplication {
 
 	public static void checkCredit() {
 		CreditConsultation creditConsultation = new CreditConsultation();
-		// List<String> country_code = new ArrayList<String>();
-		// country_code.add("AD");
-		creditConsultation.setCountry_code("AD");
-		// creditConsultation.setCountry_codes(country_code);
-		System.out.println(octopushManager.checkCredit(octopushManager.returnJson(creditConsultation)));
+		 List<String> country_codes = new ArrayList<String>();
+		 country_codes.add("AD");
+		 country_codes.add("GB");
+//		creditConsultation.setCountry_code("AD");
+//		 creditConsultation.setCountry_codes(country_codes);
+//		System.out.println(octopushManager.checkCredit(octopushManager.returnJson(creditConsultation)));
+		 System.out.println(octopushManager.checkCredit(country_codes));
 	}
 
 	public static void subAccountCreate() {
@@ -444,17 +449,17 @@ public class OctopushApplication {
 
 		// Setting values
 
-		VoiceSMS voiceSMS = new VoiceSMS();
+		VoiceSms voiceSms = new VoiceSms();
 
-		voiceSMS.setRecipients(recipients);
-		voiceSMS.setText(text);
-		voiceSMS.setSender(sender);
-		voiceSMS.setType(type);
-		voiceSMS.setPurpose(purpose);
-		voiceSMS.setVoice_gender(voice_gender);
-		voiceSMS.setVoice_language(voice_language);
+		voiceSms.setRecipients(recipients);
+		voiceSms.setText(text);
+		voiceSms.setSender(sender);
+		voiceSms.setType(type);
+		voiceSms.setPurpose(purpose);
+		voiceSms.setVoice_gender(voice_gender);
+		voiceSms.setVoice_language(voice_language);
 
-		System.out.println(octopushManager.sendVoiceSMS(octopushManager.returnJson(voiceSMS)));
+		System.out.println(octopushManager.sendVoiceSms(octopushManager.returnJson(voiceSms)));
 	}
 
 	public static void sendVoiceSmsToAList() {
@@ -478,16 +483,16 @@ public class OctopushApplication {
 		recipients.add(recipient1);
 		recipients.add(recipient2);
 
-		VoiceSMS voiceSMS = new VoiceSMS();
-		voiceSMS.setText(text);
-		voiceSMS.setSender(sender);
-		voiceSMS.setType(type);
-		voiceSMS.setPurpose(purpose);
-		voiceSMS.setVoice_gender(voice_gender);
-		voiceSMS.setVoice_language(voice_language);
-		voiceSMS.setList_name(listName);
+		VoiceSms voiceSms = new VoiceSms();
+		voiceSms.setText(text);
+		voiceSms.setSender(sender);
+		voiceSms.setType(type);
+		voiceSms.setPurpose(purpose);
+		voiceSms.setVoice_gender(voice_gender);
+		voiceSms.setVoice_language(voice_language);
+		voiceSms.setList_name(listName);
 
-		System.out.println(octopushManager.sendVoiceSmsList(octopushManager.returnJson(voiceSMS)));
+		System.out.println(octopushManager.sendVoiceSmsList(octopushManager.returnJson(voiceSms)));
 	}
 
 	public static void getVoiceSmsToAListStatus() {
@@ -498,19 +503,19 @@ public class OctopushApplication {
 	public static void confirmVoiceSmsToAList() {
 		String ticket_number = "voice_6131134271eac489381188";
 
-		SMSList getListSMS = new SMSList();
-		getListSMS.setTicket_number(ticket_number);
+		SmsList getListSms = new SmsList();
+		getListSms.setTicket_number(ticket_number);
 
-		System.out.println(octopushManager.confirmVoiceSmsToAList(octopushManager.returnJson(getListSMS)));
+		System.out.println(octopushManager.confirmVoiceSmsToAList(octopushManager.returnJson(getListSms)));
 	}
 
 	public static void cancelVoiceSmsToAList() {
 		String ticket_number = "voice_6131154a40975181671990";
 
-		SMSList getListSMS = new SMSList();
-		getListSMS.setTicket_number(ticket_number);
+		SmsList getListSms = new SmsList();
+		getListSms.setTicket_number(ticket_number);
 
-		System.out.println(octopushManager.cancelVoiceSmsToAList(octopushManager.returnJson(getListSMS)));
+		System.out.println(octopushManager.cancelVoiceSmsToAList(octopushManager.returnJson(getListSms)));
 	}
 
 	public static void modifyParameter() {

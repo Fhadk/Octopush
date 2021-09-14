@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class VoiceSMS {
+public class VoiceSms {
 	// Required
 	List<Recipient> recipients = new ArrayList<Recipient>();
 	

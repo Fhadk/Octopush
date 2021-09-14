@@ -1,10 +1,9 @@
 package com.Octopush.service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
@@ -29,7 +28,7 @@ public class OctopushManager {
 	private String apiLogin;
 	private String apiKey;
 	
-	// SMS //
+	// Sms //
 	private String apiSendSmsUrl;
 	private String apiSmsOnListCreateUrl;
 	private String apiSmsOnListStatusUrl;
@@ -55,7 +54,7 @@ public class OctopushManager {
 	private String apiSubAccountCreditTransfer;
 	private String apiSubAccountCreditTransferToken;
 	
-	// VoiceSMS
+	// VoiceSms
 	private String apiVoiceSmsSend;
 	private String apiVoiceSmsSendList;
 	private String apiVoiceSmsStatus;
@@ -91,20 +90,22 @@ public class OctopushManager {
 
 	/**
 	 * 
-	 * @param smsList
+	 * @param smsTicket
 	 * @return
 	 */
 
-	public Object getStatusListSMS(String smsTicket) {
+	public Object getSmsToAListStatus(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(requestHeaders);
-			apiSmsOnListStatusUrl =  apiSmsOnListStatusUrl.concat("?ticket_number=").concat(smsTicket);
-			apiSmsOnListStatusUrl = java.net.URLEncoder.encode(apiSmsOnListStatusUrl, "UTF-8");
+			
+			String smsTicketEncoded = java.net.URLEncoder.encode(smsTicket, "UTF-8");
+			apiSmsOnListStatusUrl = apiSmsOnListStatusUrl.concat("?ticket_number=").concat(smsTicketEncoded);
+			
 			response = processRequest(apiSmsOnListStatusUrl, HttpMethod.GET, request);
 
 			if(response.getStatusCode().equals(HttpStatus.OK)) {
-				logger.info("getStatusListSMS - Success Response: " + response.getBody());
+				logger.info("getStatusListSms - Success Response: " + response.getBody());
 			}
 			
 		} catch (Exception e) {
@@ -114,14 +115,19 @@ public class OctopushManager {
 		return response.getBody();
 	}
 
-	public Object confirmListSMS(String smsTicket) { 
+	/**
+	 * 
+	 * @param smsTicket
+	 * @return
+	 */
+	public Object confirmSmsToAList(String smsTicket) { 
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiSmsOnListConfirmUrl, HttpMethod.POST, request);
 
 			if(response.getStatusCode().equals(HttpStatus.OK)) {
-				logger.info("confirmListSMS -Success Response: " + response.getBody());
+				logger.info("confirmListSms -Success Response: " + response.getBody());
 			}
 
 		} catch (Exception e) {
@@ -136,13 +142,13 @@ public class OctopushManager {
 	 * @param smsTicket
 	 * @return
 	 */
-	public Object cancelListSMS(String smsTicket) {
+	public Object cancelSmsToAList(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsTicket, requestHeaders);
 			response = processRequest(apiSmsOnListCancelUrl, HttpMethod.DELETE, request);
 			if(response.getStatusCode() ==  HttpStatus.NO_CONTENT) {
-				logger.info("cancelListSMS - Success Response: " + response.getStatusCode());
+				logger.info("cancelListSms - Success Response: " + response.getStatusCode());
 			}else {
 				logger.info("Error: " + response.getStatusCode());
 			}
@@ -160,14 +166,14 @@ public class OctopushManager {
 	 * @return
 	 */
 
-	public Object createListSMS(String smsList) {
+	public Object createSmsToAList(String smsList) {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(smsList, requestHeaders);
 			response = processRequest(apiSmsOnListCreateUrl, HttpMethod.POST, request);
 
 			if(response.getStatusCode().equals(HttpStatus.OK)) {
-				logger.info("createListSMS - Success Response: " + response.getBody());
+				logger.info("createListSms - Success Response: " + response.getBody());
 			}
 
 		} catch (Exception e) {
@@ -179,13 +185,13 @@ public class OctopushManager {
 
 	/**
 	 * 
-	 * @param SMSh
+	 * @param Sms
 	 * @return
 	 */
-	public Object sendSMSCampaign(String SMS) {
+	public Object sendSmsCampaign(String Sms) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(SMS, requestHeaders);
+			request = new HttpEntity<String>(Sms, requestHeaders);
 			response = processRequest(apiSendSmsUrl, HttpMethod.POST, request);
 
 			if (HttpStatus.CREATED != null) {
@@ -363,9 +369,6 @@ public class OctopushManager {
 				.concat("&product_name=").concat(data[1])
 				.concat("&with_details=").concat(data[2]);
 			}
-			
-			apiCheckBalance = java.net.URLEncoder.encode(apiCheckBalance, "UTF-8");
-			
 			request = new HttpEntity<String>(requestHeaders);
 			response = processRequest(apiCheckBalance, HttpMethod.GET, request);
 			
@@ -383,13 +386,33 @@ public class OctopushManager {
 	
 	/**
 	 * 
-	 * @param data
+	 * @param countryCodes
 	 * @return
 	 */
-	public Object checkCredit(String data) {   // need to replace
+	public Object checkCredit(List<String> countryCodes) {
+		final String TAG = "country_codes[]=";
+		final String AND = "&";
+		final String ARUGUMENT = "?";
+		boolean flag = false;
 		ResponseEntity<Object> response = null;
+		
 		try {
-			request = new HttpEntity<String>(data,requestHeaders);
+			
+			request = new HttpEntity<String>(requestHeaders);
+			if(!countryCodes.isEmpty()) {
+				apiCheckCredit = apiCheckCredit.concat(ARUGUMENT);
+			}
+			
+			for(String countryCode:countryCodes) {
+				if(flag = false) {
+					apiCheckCredit = apiCheckCredit.concat(TAG).concat(java.net.URLEncoder.encode(countryCode, "UTF-8"));
+					flag = true;
+				}else if(flag = true) {
+					apiCheckCredit = apiCheckCredit.concat(AND);
+					apiCheckCredit = apiCheckCredit.concat(TAG).concat(java.net.URLEncoder.encode(countryCode, "UTF-8"));
+				}
+			}
+			
 			response = processRequest(apiCheckCredit, HttpMethod.GET, request);
 			if(response.getStatusCode() ==  HttpStatus.OK) {
 				logger.info("checkCredit - Success Response: " + response.getStatusCode());
@@ -429,8 +452,9 @@ public class OctopushManager {
 	/**
 	 * 
 	 * @param data
+	 * @param accountID
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Object subAccountModify(String data, String accountID) throws Exception {
 		ResponseEntity<Object> response = null;
@@ -461,7 +485,7 @@ public class OctopushManager {
 	
 	/**
 	 * 
-	 * @param data
+	 * @param subAccountID
 	 * @return
 	 */
 	public Object subAccountInformation(String subAccountID) {
@@ -482,6 +506,11 @@ public class OctopushManager {
 	}
 	
 	
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public Object subAccountTransferCredit(String data) {
 		ResponseEntity<Object> response = null;
 		try {
@@ -499,6 +528,11 @@ public class OctopushManager {
 		return response.getStatusCode();
 	}
 	
+	/**
+	 * 
+	 * @param data
+	 * @return
+	 */
 	public Object subAccountTransferCreditToken(String data) {
 		ResponseEntity<Object> response = null;
 		try {
@@ -519,17 +553,17 @@ public class OctopushManager {
 	
 	/**
 	 * 
-	 * @param SMSh
+	 * @param Sms
 	 * @return
 	 */
-	public Object sendVoiceSMS(String SMS) {
+	public Object sendVoiceSms(String Sms) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(SMS, requestHeaders);
+			request = new HttpEntity<String>(Sms, requestHeaders);
 			response = processRequest(apiVoiceSmsSend, HttpMethod.POST, request);
 
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
-				logger.info("sendVoiceSMS - Success Response: " + response.getStatusCode());
+				logger.info("sendVoiceSms - Success Response: " + response.getStatusCode());
 			}else {
 				logger.error("Error: " + response.getStatusCode());
 			}
@@ -544,13 +578,13 @@ public class OctopushManager {
 	
 	/**
 	 * 
-	 * @param SMS
+	 * @param Sms
 	 * @return
 	 */
-	public Object sendVoiceSmsList(String SMS) {
+	public Object sendVoiceSmsList(String Sms) {
 		ResponseEntity<Object> response = null;
 		try {
-			request = new HttpEntity<String>(SMS, requestHeaders);
+			request = new HttpEntity<String>(Sms, requestHeaders);
 			response = processRequest(apiVoiceSmsSendList, HttpMethod.POST, request);
 
 			if(response.getStatusCode() ==  HttpStatus.CREATED) {
@@ -576,8 +610,9 @@ public class OctopushManager {
 		ResponseEntity<Object> response = null;
 		try {
 			request = new HttpEntity<String>(requestHeaders);
+			smsTicket = java.net.URLEncoder.encode(apiVoiceSmsStatus, "UTF-8");
 			apiVoiceSmsStatus = apiVoiceSmsStatus.concat("?ticket_number=").concat(smsTicket);
-			apiVoiceSmsStatus = java.net.URLEncoder.encode(apiVoiceSmsStatus, "UTF-8");
+			
 			response = processRequest(apiVoiceSmsStatus, HttpMethod.GET, request);
 
 			if(response.getStatusCode() ==  HttpStatus.OK) {
@@ -593,6 +628,11 @@ public class OctopushManager {
 		return response.getBody();
 	}
 
+	/**
+	 * 
+	 * @param smsTicket
+	 * @return
+	 */
 	public Object confirmVoiceSmsToAList(String smsTicket) {
 		ResponseEntity<Object> response = null;
 		try {
@@ -690,7 +730,13 @@ public class OctopushManager {
 	}
 	
 
-	
+	/**
+	 * 
+	 * @param URL
+	 * @param methodtype
+	 * @param request
+	 * @return
+	 */
 	ResponseEntity<Object> processRequest(String URL, HttpMethod methodtype, HttpEntity<String> request) {
 		response = restTemplate.exchange(URL, methodtype, request, Object.class);
 		return response;
@@ -726,7 +772,7 @@ public class OctopushManager {
 		// LOGIN //
 		apiLogin = prop.getProperty("api-login");
 		apiKey = prop.getProperty("api-key");
-		// SMS //
+		// Sms //
 		apiSendSmsUrl = prop.getProperty("apiSend");
 		apiSmsOnListCreateUrl = prop.getProperty("apiListCreate");
 		apiSmsOnListStatusUrl = prop.getProperty("apiListStatus");
@@ -749,7 +795,7 @@ public class OctopushManager {
 		apiSubAccountCreditTransfer = prop.getProperty("apiSubAccountCreditTransfer");
 		apiSubAccountCreditTransferToken = prop.getProperty("apiSubAccountCreditTransferToken");
 		
-		// VoiceSMS
+		// VoiceSms
 		apiVoiceSmsSend = prop.getProperty("apiVoiceSmsSend");
 		apiVoiceSmsSendList = prop.getProperty("apiVoiceSmsSendList");
 		apiVoiceSmsStatus = prop.getProperty("apiVoiceSmsStatus");

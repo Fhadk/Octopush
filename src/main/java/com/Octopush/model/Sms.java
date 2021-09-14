@@ -10,7 +10,7 @@ import lombok.ToString;
 @Data
 @AllArgsConstructor
 @ToString
-public class SMS {
+public class Sms {
 	List<Recipient> recipients = new ArrayList<Recipient>();
 	
 	String text;
@@ -25,7 +25,7 @@ public class SMS {
 	String request_id;
 	boolean auto_optimize_text;
 	
-	public SMS(){
+	public Sms(){
 		simulation_mode = false;
 	    request_id = "";
 		auto_optimize_text = true;

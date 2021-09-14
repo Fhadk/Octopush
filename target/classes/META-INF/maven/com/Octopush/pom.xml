@@ -12,9 +12,11 @@
 	<artifactId>Octopush</artifactId>
 	<version>0.1</version>
 	<name>Octopush</name>
+	<packaging>jar</packaging>
 
 	<properties>
 		<java.version>1.8</java.version>
+		<start-class>com.Octopush.OctopushApplication</start-class>
 	</properties>
 
 	<dependencies>
